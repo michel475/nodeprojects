@@ -1,0 +1,164 @@
+const p1 = {
+    NOME:"Mario",
+    VELOCIDADE:4,
+    MANOBRABILIDADE:3,
+    PODER:3,
+}
+
+const p2 = {
+    NOME:"Bowser",
+    VELOCIDADE:5,
+    MANOBRABILIDADE:2,
+    PODER:5,
+}
+
+const p3 = {
+    NOME:"Peach",
+    VELOCIDADE:5,
+    MANOBRABILIDADE:3,
+    PODER:3,
+}
+
+const p4 = {
+    NOME:"Luigi",
+    VELOCIDADE:3,
+    MANOBRABILIDADE:3,
+    PODER:4,
+}
+
+const p5 = {
+    NOME:"Yoshi",
+    VELOCIDADE:4,
+    MANOBRABILIDADE:4,
+    PODER:3,
+}
+
+const p6 = {
+    NOME:"Donkey Kong",
+    VELOCIDADE:2,
+    MANOBRABILIDADE:3,
+    PODER:5,
+}
+
+let colecao = [
+    p1, p2, p3, p4, p5, p6
+]
+
+let pistas = [
+    "CURVA", "RETA", "CONFRONTO"
+]
+
+
+const player1 = {
+    PERSONAGEM:colecao[Math.floor(Math.random()*6)],
+    PONTUACAO:0
+}
+
+const player2 = {
+    PERSONAGEM:colecao[Math.floor(Math.random()*6)],
+    PONTUACAO:0
+}
+
+if(player2.PERSONAGEM === player1.PERSONAGEM){
+    while(player2.PERSONAGEM === player1.PERSONAGEM){
+        player2.PERSONAGEM = colecao[Math.floor(Math.random()*6)]
+    }
+}
+
+async function rolar_dado() {
+    return Math.floor(Math.random() * 6) + 1;
+};
+
+async function sortear_pista(){
+    let random = Math.floor(Math.random()*3);
+    let resultado = pistas[random];
+    return resultado;
+}
+
+
+async function corrida(){
+    console.log(`Começando corrida entre ${player1.PERSONAGEM.NOME} e ${player2.PERSONAGEM.NOME}...🚦`)
+}
+
+
+async function calcula_resultado(totalRodada1, totalRodada2){
+    if(totalRodada1 === totalRodada2)
+    {
+        return "Empate";
+    }
+    else{
+        return totalRodada1 > totalRodada2 ? 1 : 2;
+    }
+}
+
+async function rolagem_resultado(personagemNome, bloco, atributo, rolagem){
+    console.log(`${personagemNome} realizou um teste de ${bloco} rolou ${rolagem} no dado: ${rolagem} + ${atributo} = ${rolagem + atributo}`);
+}
+
+async function iniciar_corrida(player1, player2) {
+    for(let rodada=1; rodada<=5; rodada++)
+    {
+        let rolagem_p1;
+        let rolagem_p2;
+        let r1;
+        let r2;
+        let pista;
+        pista = await sortear_pista();
+        console.log(`Rodada ${rodada} na pista... tipo bloco.... ${pista}`)
+        rolagem_p1 = await rolar_dado();
+        rolagem_p2 = await rolar_dado();
+        if(pista === "CURVA"){
+            r1 = rolagem_p1 + player1.PERSONAGEM.MANOBRABILIDADE;
+            r2 = rolagem_p2 + player2.PERSONAGEM.MANOBRABILIDADE;
+            await rolagem_resultado(player1.PERSONAGEM.NOME, "MANOBRABILIDADE", player1.PERSONAGEM.MANOBRABILIDADE, rolagem_p1)
+            await rolagem_resultado(player2.PERSONAGEM.NOME, "MANOBRABILIDADE", player2.PERSONAGEM.MANOBRABILIDADE, rolagem_p2)
+        }
+        else{
+            if(pista === "RETA"){
+                r1 = rolagem_p1 + player1.PERSONAGEM.VELOCIDADE;
+                r2 = rolagem_p2 + player2.PERSONAGEM.VELOCIDADE;
+                await rolagem_resultado(player1.PERSONAGEM.NOME, "VELOCIDADE", player1.PERSONAGEM.VELOCIDADE, rolagem_p1)
+                await rolagem_resultado(player2.PERSONAGEM.NOME, "VELOCIDADE", player2.PERSONAGEM.VELOCIDADE, rolagem_p2)
+            }
+            else{
+                if(pista === "CONFRONTO"){
+                    r1 = rolagem_p1 + player1.PERSONAGEM.PODER;
+                    r2 = rolagem_p2 + player2.PERSONAGEM.PODER;
+                    await rolagem_resultado(player1.PERSONAGEM.NOME, "PODER", player1.PERSONAGEM.PODER, rolagem_p1)
+                    await rolagem_resultado(player2.PERSONAGEM.NOME, "PODER", player2.PERSONAGEM.PODER, rolagem_p2)
+                }
+            }
+        }
+        let resultado = await calcula_resultado(r1, r2);
+        if(resultado === "Empate")
+            console.log("Rodada empatou");
+        else{
+            if(pista === "RETA" || pista === "CURVA")
+            {
+                player1.PONTUACAO += resultado === 1 ? 1 : 0;
+                player2.PONTUACAO += resultado === 2 ? 1 : 0;
+                console.log(resultado === 1 && resultado != "Empate" ? `${player1.PERSONAGEM.NOME} marcou 1 ponto` : `${player2.PERSONAGEM.NOME} marcou 1 ponto`);
+            }
+            else{
+                if(player1.PONTUACAO > 0)
+                    player1.PONTUACAO -= resultado === 2 ? 1 : 0;
+                if(player2.PONTUACAO > 0)
+                    player2.PONTUACAO -= resultado === 1 ? 1 : 0;
+                console.log(resultado === 2 && resultado != "Empate" ? `${player1.PERSONAGEM.NOME} perdeu 1 ponto` : `${player2.PERSONAGEM.NOME} perdeu 1 ponto`);
+            }
+        }
+        console.log(`PLACAR ATUAL =====\n${player1.PERSONAGEM.NOME} está com ${player1.PONTUACAO} pontos\n${player2.PERSONAGEM.NOME} está com ${player2.PONTUACAO} pontos`);
+        console.log("------------------------------------");
+    }
+    if(player1.PONTUACAO > player2.PONTUACAO)
+        console.log(`${player1.PERSONAGEM.NOME} venceu a corrida!..`);
+    if(player2.PONTUACAO > player1.PONTUACAO)
+        console.log(`${player2.PERSONAGEM.NOME} venceu a corrida!..`);
+}
+
+
+(async function main(){
+    console.log("🏁Bem vindo ao Simulador de corridas do Mario Kart...\n");
+    await corrida();
+    await iniciar_corrida(player1, player2);
+})();
